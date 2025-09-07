@@ -63,7 +63,7 @@ export default function HomePage() {
 					imageUrl: p.imageUrl,
 					repoUrl: p.repoUrl,
 					liveUrl: p.liveUrl,
-					ideaId: p.ideaId || "",
+					ideaId: p.ideaId,
 				}));
 
 				setProjects(formattedProjects);

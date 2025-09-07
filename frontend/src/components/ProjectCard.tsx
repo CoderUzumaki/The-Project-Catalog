@@ -9,15 +9,18 @@ import { Badge } from "@/components/ui/badge"
 export interface ProjectCardProps {
   id: string
   title: string
+  description?: string
   imageUrl?: string
   repoUrl?: string
   liveUrl?: string
   tags: string[]
   likeCount: number
   username: string
-  ideaId: string
+  ideaId?: string   // ⬅ make optional
   className?: string
+  onClick?: () => void
 }
+
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
