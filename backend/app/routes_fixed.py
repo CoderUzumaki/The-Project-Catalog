@@ -4,11 +4,10 @@ from pathlib import Path
 from typing import Any, Dict
 import uuid
 import os
-from datetime import datetime
 from dotenv import load_dotenv
 from app.models import User, db
 from functools import wraps
-from app.models import Project, Idea, User, UserIdeaLike, Comment
+from app.models import Project, Idea, User, UserIdeaLike
 
 # Load environment variables
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
@@ -621,111 +620,6 @@ def get_idea(idea_id):
         return jsonify({"status": 404, "detail": "Idea not found"}), 404
     return jsonify({"status": 200, "idea": idea.to_dict()}), 200
 
-@app.route('/ideas/<uuid:idea_id>/comments', methods=['GET'])
-def get_idea_comments(idea_id):
-    """Get all comments for a specific idea."""
-    try:
-        # First check if the idea exists
-        idea = Idea.query.filter_by(id=idea_id).first()
-        if not idea:
-            return jsonify({"status": 404, "detail": "Idea not found"}), 404
-        
-        # Get query parameters for pagination
-        page = request.args.get('page', 1, type=int)
-        limit = request.args.get('limit', 20, type=int)
-        
-        # Validate parameters
-        if page < 1:
-            page = 1
-        if limit < 1 or limit > 100:
-            limit = 20
-        
-        # Query comments for this idea, ordered by creation date (newest first)
-        comments_query = Comment.query.filter_by(idea_id=idea_id).order_by(Comment.created_at.desc())
-        
-        # Apply pagination
-        paginated_comments = comments_query.paginate(
-            page=page,
-            per_page=limit,
-            error_out=False
-        )
-        
-        # Build response
-        response_data = {
-            "status": 200,
-            "idea_id": str(idea_id),
-            "idea_title": idea.title,
-            "comments": [comment.to_dict() for comment in paginated_comments.items],
-            "pagination": {
-                "page": page,
-                "limit": limit,
-                "total_pages": paginated_comments.pages,
-                "total_items": paginated_comments.total,
-                "has_next": paginated_comments.has_next,
-                "has_prev": paginated_comments.has_prev,
-                "next_page": paginated_comments.next_num if paginated_comments.has_next else None,
-                "prev_page": paginated_comments.prev_num if paginated_comments.has_prev else None
-            }
-        }
-        
-        return jsonify(response_data), 200
-        
-    except Exception as e:
-        current_app.logger.error(f"Failed to fetch comments for idea {idea_id}: {e}")
-        return jsonify({
-            "status": 500, 
-            "detail": "Failed to fetch comments", 
-            "error": str(e)
-        }), 500
-
-@app.route('/ideas/<uuid:idea_id>/comments', methods=['POST'])
-@login_required
-def create_comment(idea_id):
-    """Create a new comment on an idea."""
-    try:
-        # Check if the idea exists
-        idea = Idea.query.filter_by(id=idea_id).first()
-        if not idea:
-            return jsonify({"status": 404, "detail": "Idea not found"}), 404
-        
-        # Get request data
-        data = request.get_json() or {}
-        content = (data.get("content") or "").strip()
-        
-        if not content:
-            return jsonify({"status": 400, "detail": "Comment content is required"}), 400
-        
-        # Get current user
-        user_id = session["user_id"]
-        
-        # Create new comment
-        new_comment = Comment.create(
-            user_id=user_id,
-            idea_id=idea_id,
-            content=content
-        )
-        
-        db.session.add(new_comment)
-        db.session.commit()
-        
-        return jsonify({
-            "status": 201,
-            "message": "Comment created successfully",
-            "comment": new_comment.to_dict()
-        }), 201
-        
-    except Exception as e:
-        try:
-            db.session.rollback()
-        except:
-            pass
-        current_app.logger.error(f"Failed to create comment: {e}")
-        return jsonify({
-            "status": 500, 
-            "detail": "Failed to create comment", 
-            "error": str(e)
-        }), 500
-
 @app.route('/ideas/<uuid:idea_id>/like', methods=['POST'])
 @login_required
 def like_idea(idea_id):
@@ -829,44 +723,3 @@ def unlike_idea(idea_id):
             pass
         current_app.logger.error(f"Failed to unlike idea: {e}")
         return jsonify({"status": 500, "detail": "Failed to unlike idea", "error": str(e)}), 500
-
-@app.route('/health', methods=['GET'])
-def health_check():
-    """Health check endpoint for monitoring and load balancers."""
-    try:
-        # Test database connection
-        db.session.execute('SELECT 1')
-        
-        return jsonify({
-            "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
-            "version": "1.0.0",
-            "database": "connected",
-            "services": {
-                "database": "ok",
-                "authentication": "ok" if supabase else "disabled"
-            }
-        }), 200
-        
-    except Exception as e:
-        return jsonify({
-            "status": "unhealthy",
-            "timestamp": datetime.utcnow().isoformat(),
-            "error": str(e)
-        }), 503
-
-@app.route('/', methods=['GET'])
-def root():
-    """Root endpoint - API information."""
-    return jsonify({
-        "name": "The Project Catalog API",
-        "version": "1.0.0",
-        "description": "API for managing project ideas and implementations",
-        "endpoints": {
-            "health": "/health",
-            "ideas": "/ideas",
-            "auth": "/auth/status",
-            "documentation": "/docs"
-        },
-        "status": "running"
-    }), 200

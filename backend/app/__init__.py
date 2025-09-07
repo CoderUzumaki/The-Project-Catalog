@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 from supabase import create_client
@@ -24,6 +25,9 @@ FLASK_SECRET_KEY = _env("FLASK_SECRET_KEY") or "change-me"
 app = Flask(__name__)
 app.secret_key = FLASK_SECRET_KEY
 app.config.from_object(Config)
+
+# Enable CORS for all domains and routes
+CORS(app)
 
 db.init_app(app)
 migrate = Migrate(app, db)
