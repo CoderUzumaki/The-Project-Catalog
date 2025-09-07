@@ -164,7 +164,7 @@ class Idea(db.Model):
             'status': self.status,
             'difficulty': self.difficulty,
             'user_id': str(self.user_id),
-            'author': self.author,
+            'author': self.user.name if self.user else None,
             'solution': self.solution,
             'project_count': self.project_count(),
             'has_projects': self.has_projects()
