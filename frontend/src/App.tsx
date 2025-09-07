@@ -1,14 +1,18 @@
-import './App.css'
+import { Outlet } from "react-router-dom";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 function App() {
 
   return (
-    <>
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <h1 className="text-4xl font-bold text-blue-600">Welcome to DevHub!</h1>
-      </div>
-    </>
-  )
+    <div className="min-h-screen bg-white flex flex-col">
+      <Header />
+      <main className="flex-grow">
+        <Outlet /> {/* This will render the current page */}
+      </main>
+      <Footer />
+    </div>
+  );
 }
 
-export default App
+export default App;
