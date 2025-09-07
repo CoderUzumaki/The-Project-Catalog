@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { TrendingUp, Gift } from "lucide-react"
 import { ArrowRight, Users, Trophy, Star, Filter, ExternalLink, Github, Sparkles } from "lucide-react"
 import { motion } from "framer-motion"
+import { Link } from "react-router-dom"
 import Testimonials from "@/components/Testimonials"
 
 const fadeInUp = {
@@ -74,14 +75,18 @@ export default function HomePage() {
             </motion.p>
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button size="lg" className="text-lg px-8">
-                  Start your quest <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
+                <Link to="/login">
+                  <Button size="lg" className="text-lg px-8">
+                    Start your quest <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button variant="outline" size="lg" className="text-lg px-8 bg-transparent">
-                  Browse projects
-                </Button>
+                <Link to="/ideas">
+                  <Button variant="outline" size="lg" className="text-lg px-8 bg-transparent">
+                    Browse projects
+                  </Button>
+                </Link>
               </motion.div>
             </motion.div>
           </motion.div>

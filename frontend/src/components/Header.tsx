@@ -125,7 +125,10 @@ const Header: React.FC = () => {
 								>
 									Profile
 								</Link>
-								<Button>
+								<Button
+								size="sm" className="w-full flex items-center justify-center mt-2"
+								>
+
 									<FaSignOutAlt className="mr-2" />
 									Logout
 								</Button>
