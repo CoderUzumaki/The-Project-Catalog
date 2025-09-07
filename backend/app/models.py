@@ -61,7 +61,7 @@ class Project(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    image_url = db.Column(db.String(300), nullable=True)
+    image_url = db.Column(db.Text, nullable=True)
     repo_url = db.Column(db.String(300), nullable=False)
     live_url = db.Column(db.String(300), nullable=True)
     tags = db.Column(db.ARRAY(db.String), nullable=True)
@@ -94,7 +94,9 @@ class Project(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'like_count': self.like_count,
             'user_id': str(self.user_id),
-            'idea_id': str(self.idea_id)
+            'idea_id': str(self.idea_id),
+            'username': self.user.name if self.user else None,
+            'user_email': self.user.email if self.user else None
         }
     
     @classmethod
@@ -139,7 +141,7 @@ class Idea(db.Model):
     like_count = db.Column(db.Integer, default=0)
     status = db.Column(db.String(50), default='proposed')  # proposed, in_progress, completed
     difficulty = db.Column(db.String(50), nullable=True)  # e.g., easy, medium, hard
-    image_url=db.Column(db.String(300), nullable=True)
+    image_url=db.Column(db.Text, nullable=True)
     # Foreign Key
     solution=db.Column(db.Text, nullable=True)  # URL to a solution or related resource
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)

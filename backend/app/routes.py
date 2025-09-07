@@ -18,6 +18,7 @@ def _env(name, default=""):
     return v.strip() if isinstance(v, str) else v
 
 SUPABASE_URL = _env("SUPABASE_URL")
+FRONTEND_URL = _env("FRONTEND_URL", "https://devhub-murex.vercel.app/")
 
 def _extract(resp: Any, key: str):
     if resp is None:
@@ -281,15 +282,15 @@ def google_oauth():
         if not SUPABASE_URL:
             return redirect("/login?error=Supabase URL not configured")
             
-        # Supabase handles the OAuth flow, we just need to redirect to their OAuth URL
-        oauth_url = f"{SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=http://127.0.0.1:5000/auth/callback"
+        # Use environment variable for frontend URL
+        oauth_url = f"{SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to={FRONTEND_URL}"
         return redirect(oauth_url)
     except Exception as e:
         return redirect(f"/login?error=OAuth initialization failed: {str(e)}")
 
 @app.route("/auth/callback", methods=["GET"])  
 def oauth_callback():
-    """Handle OAuth callback from Supabase"""
+    """Handle OAuth callback and redirect to frontend"""
     try:
         # Get the access token and refresh token from URL fragments or query params
         access_token = request.args.get('access_token')
@@ -298,29 +299,59 @@ def oauth_callback():
         error_description = request.args.get('error_description')
         
         if error:
-            return redirect(f"/login?error=OAuth failed: {error_description or error}")
+            # Redirect to frontend with error
+            return redirect(f"{FRONTEND_URL}/?error={error_description or error}")
         
         if access_token:
-            # Use the access token to get user info
-            user_response = supabase.auth.get_user(access_token)
-            user = _extract(user_response, "user")
-            
-            if user:
-                # Create session
-                session.clear()
-                session["user_id"] = user.get("id")
-                session["email"] = user.get("email")
-                session["access_token"] = access_token
+            # Process the OAuth tokens
+            try:
+                user_response = supabase.auth.get_user(access_token)
+                user = _extract(user_response, "user")
                 
-                # Redirect to ideas page after successful OAuth
-                return redirect("/ideas?success=Google login successful!")
-            else:
-                return redirect("/login?error=Failed to get user information")
+                if user:
+                    # Normalize user data
+                    if hasattr(user, "dict"):
+                        try:
+                            user = user.dict()
+                        except Exception:
+                            user = dict(user.__dict__) if hasattr(user, "__dict__") else user
+                    
+                    # Create session
+                    session.clear()
+                    session["user_id"] = user.get("id")
+                    session["email"] = user.get("email")
+                    session["access_token"] = access_token
+                    if refresh_token:
+                        session["refresh_token"] = refresh_token
+                    
+                    # Try to create user in database
+                    try:
+                        existing_user = User.query.filter_by(auth_id=user.get("id")).first()
+                        if not existing_user:
+                            new_user = User(
+                                auth_id=user.get("id"),
+                                email=user.get("email"),
+                                name=user.get("user_metadata", {}).get("full_name") or user.get("user_metadata", {}).get("name")
+                            )
+                            db.session.add(new_user)
+                            db.session.commit()
+                    except Exception as db_error:
+                        current_app.logger.error(f"Database error during OAuth: {db_error}")
+                        # Continue even if database fails
+                    
+                    # Redirect to frontend with success
+                    return redirect(f"{FRONTEND_URL}/?success=Login successful")
+                else:
+                    return redirect(f"{FRONTEND_URL}/?error=Failed to get user information")
+            except Exception as process_error:
+                current_app.logger.error(f"OAuth processing error: {process_error}")
+                return redirect(f"{FRONTEND_URL}/?error=Authentication processing failed")
         else:
-            return redirect("/login?error=No access token received")
+            return redirect(f"{FRONTEND_URL}/?error=No access token received")
             
     except Exception as e:
-        return redirect(f"/login?error=OAuth callback failed: {str(e)}")
+        current_app.logger.error(f"OAuth callback failed: {e}")
+        return redirect(f"http://localhost:3000/?error=Authentication failed")
 
 @app.route("/auth/google/callback", methods=["GET"])
 def google_callback():
@@ -870,3 +901,12 @@ def root():
         },
         "status": "running"
     }), 200
+
+@app.route('/project/<uuid:project_id>', methods=['GET'])
+def get_project(project_id):
+    """Get project details by ID."""
+    project = Project.query.filter_by(id=project_id).first()
+    if not project:
+        return jsonify({"status": 404, "detail": "Project not found"}), 404
+    return jsonify({"status": 200, "project": project.to_dict()}), 200
+
