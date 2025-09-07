@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { Heart, MoreHorizontal } from "lucide-react"
+import { Heart } from "lucide-react"
 
 interface CardProps {
   title: string

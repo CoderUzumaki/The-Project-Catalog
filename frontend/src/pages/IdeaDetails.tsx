@@ -12,43 +12,16 @@ type Idea = {
 	title?: string;
 	author?: string;
     description?: string;
+	solution?: string;
     id: number;
-    votes: number;
     comments: number;
 };
 
-const comments = [
-	{
-		name: "Emily Carter",
-		timestamp: "2 days ago",
-		text: "This is a great idea! I've been looking for a project like this to contribute to.",
-	},
-	{
-		name: "David Lee",
-		timestamp: "1 day ago",
-		text: "I agree, the microservices architecture is a good approach. I'm interested in working on the device management service.",
-	},
-	{
-		name: "Sophie Chen",
-		timestamp: "22 hours ago",
-		text: "Has anyone considered using MQTT for the message queue? It's lightweight and perfect for IoT.",
-	},
-	{
-		name: "Marcus Rivera",
-		timestamp: "15 hours ago",
-		text: "Phase 2 with voice assistants will be the game changer. I'd love to help with the Alexa integration.",
-	},
-	{
-		name: "Isabelle Garcia",
-		timestamp: "7 hours ago",
-		text: "The roadmap looks solid. Breaking it down into phases is smart. Looking forward to seeing the progress on Phase 1.",
-	},
-	{
-		name: "Tom Nguyen",
-		timestamp: "2 hours ago",
-		text: "Great starting point. The API endpoints are well-defined.",
-	},
-];
+type Comment = {
+	name?: string;
+	text?: string;
+	timestamp?: string;
+};
 
 const containerVariants = {
 	hidden: { opacity: 0 },
@@ -86,6 +59,18 @@ export default function DevIdeasPage() {
 	const { id } = useParams();
 	const [idea, setIdea] = useState<Idea | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [comments, setComments] = useState<Comment[]>([]);
+
+	useEffect(() => {
+		const fetchComments = async () => {
+			const response = await fetch(
+				`${import.meta.env.VITE_API_URL}/ideas/${id}/comments`
+			);
+			const data = await response.json();
+			setComments(data);
+		};
+		fetchComments();
+	}, [id]);
 
 	useEffect(() => {
 		const fetchIdea = async () => {
@@ -192,13 +177,7 @@ export default function DevIdeasPage() {
 									animate={{ opacity: 1 }}
 									transition={{ delay: 0.4, duration: 0.5 }}
 								>
-									Develop a smart home automation system that
-									acts as a central hub, allowing users to
-									control and automate devices from different
-									brands through a single interface. The
-									system should support voice commands,
-									scheduled automations, and real-time
-									monitoring of device status.
+									{idea?.solution || "No solution provided."}
 								</motion.p>
 							</motion.section>
 
@@ -305,14 +284,14 @@ export default function DevIdeasPage() {
 											<div className="flex-1">
 												<div className="flex items-baseline gap-2">
 													<p className="text-sm font-semibold text-purple-200">
-														{comment.name}
+														{comment.name || "User"}
 													</p>
 													<p className="text-xs text-purple-300">
-														{comment.timestamp}
+														{comment.timestamp || "Just now"}
 													</p>
 												</div>
 												<p className="mt-1 text-sm text-purple-100">
-													{comment.text}
+													{comment.text || ""}
 												</p>
 											</div>
 										</motion.div>

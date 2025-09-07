@@ -13,6 +13,7 @@ import {
 	ChevronsLeft,
 	ChevronsRight,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface CardData {
 	id: number;
@@ -24,7 +25,6 @@ interface CardData {
 	like_count: number;
 	difficulty: string;
 	length: number;
-  onClick?: () => void;
 }
 
 interface ApiResponse {
@@ -59,7 +59,7 @@ export default function CardsExplorer() {
 		search: "",
 		liked: false,
 	});
-	const [availableCategories, setAvailableCategories] = useState<string[]>([
+	const [availableCategories ] = useState<string[]>([
 		"all",
 		"easy",
 		"medium",
@@ -117,7 +117,7 @@ export default function CardsExplorer() {
 						: card
 				)
 			);
-			const response = await fetch(
+			await fetch(
 				`${import.meta.env.VITE_API_URL}/ideas/${cardId}/like`,
 				{ method }
 			);
@@ -475,6 +475,9 @@ export default function CardsExplorer() {
 				{/* Cards Grid */}
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
 					{cards.map((card) => (
+						<Link
+							to={`/ideas/${card.id}`}
+						>
 						<Card
 							key={card.id}
 							title={card.title}
@@ -487,9 +490,10 @@ export default function CardsExplorer() {
 							onMore={() =>
 								console.log(`More options for card ${card.id}`)
 							}
-              onClick={() => window.open(`/ideas/${card.id}`, '_blank')}
 							className="h-full transform transition-transform duration-200 hover:scale-[1.02] focus-within:scale-[1.02]"
 						/>
+						</Link>
+						
 					))}
 				</div>
 

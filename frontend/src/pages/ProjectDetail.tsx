@@ -54,7 +54,7 @@ export default function ProjectDetail() {
 					{/* Project Header */}
 					<motion.div
 						className="bg-card rounded-xl p-8 shadow-2xl border border-border"
-						{...fadeInUp}
+						transition={{ duration: 0.5, ease: "easeInOut" }}
 					>
 						<div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
 							<div>

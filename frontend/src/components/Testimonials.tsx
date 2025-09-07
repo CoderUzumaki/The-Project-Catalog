@@ -1,9 +1,18 @@
-import { FC } from "react";
+import type { FC } from "react";
 import testimonials from "@/./data/testimonials";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Play, MoreHorizontal } from "lucide-react";
+
+export interface Testimonial {
+  name: string;
+  initials: string;
+  image?: string;
+  role: string;
+  content: string;
+  featured?: boolean;
+}
 
 const Testimonials: FC = () => {
   const smallTestimonials = testimonials.filter((t) => !t.featured);
