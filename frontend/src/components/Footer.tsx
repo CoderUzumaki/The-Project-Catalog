@@ -20,10 +20,7 @@ const Footer: FC = () => {
 							</span>
 						</div>
 						<p className="text-lg text-gray-600 mb-4 max-w-md">
-							Master your interview skills with AI-powered
-							practice sessions, real-time feedback, and
-							personalized insights to help you land your dream
-							job.
+							An Initiative by Team dUnder Pressure for the hack4odisha open track
 						</p>
 						<div className="flex space-x-4">
 							<a
