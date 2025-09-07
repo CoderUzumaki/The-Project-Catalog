@@ -41,7 +41,7 @@ const Header: React.FC = () => {
 	};
 
 	return (
-		<nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 transition-colors duration-300">
+		<nav className="border-b border-border bg-gradient-to-r from-[#0f0c29] via-[#302b63] to-[#24243e] sticky top-0 z-50 transition-colors duration-300">
 			<div className="max-w-7xl container mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex justify-between items-center h-16">
 					{/* Logo */}
@@ -60,28 +60,28 @@ const Header: React.FC = () => {
 					<div className="hidden md:flex items-center space-x-8">
 						<Link
 							to="/"
-							className="transition-all text-muted-foreground hover:text-cyan-500 hover:bg-white/40"
+							className="transition-all text-muted-foreground hover:text-white"
 						>
 							Home
 						</Link>
 
 						<Link
 							to="/about"
-							className="transition-all text-muted-foreground hover:text-cyan-500 hover:bg-white/40"
+							className="transition-all text-muted-foreground hover:text-white"
 						>
 							About
 						</Link>
 
 						<Link
 							to="/ideas"
-							className="transition-all text-muted-foreground hover:text-cyan-500 hover:bg-white/40"
+							className="transition-all text-muted-foreground hover:text-white"
 						>
 							Explore
 						</Link>
 
 						<Link
 							to="/contact"
-							className="transition-all text-muted-foreground hover:text-cyan-500 hover:bg-white/40"
+							className="transition-all text-muted-foreground hover:text-white"
 						>
 							Contact Us
 						</Link>
@@ -121,7 +121,7 @@ const Header: React.FC = () => {
 							<div className="space-y-2 pt-2">
 								<Link
 									to="/profile"
-									className="block transition-all duration-200 text-muted-foreground hover:text-cyan-500 hover:bg-white/40"
+									className="block transition-all duration-200 text-muted-foreground hover:text-white"
 								>
 									Profile
 								</Link>

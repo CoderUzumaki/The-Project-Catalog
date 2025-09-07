@@ -60,9 +60,9 @@ const Testimonials: FC = () => {
         <Card className="w-48 shadow-lg rotate-[-8deg] hover:rotate-0 transition-transform duration-300 bg-white border-border">
           <CardContent className="p-3">
             <div className="flex items-center space-x-2 mb-2">
-              <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+              <MoreHorizontal className="w-4 h-4 text-gray-600" />
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-gray-600">
               "Finally found challenging projects that aren't just todo apps..."
             </p>
           </CardContent>

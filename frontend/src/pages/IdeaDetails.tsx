@@ -11,16 +11,22 @@ import { useParams } from "react-router-dom";
 type Idea = {
 	title?: string;
 	author?: string;
-    description?: string;
+	description?: string;
 	solution?: string;
-    id: number;
-    comments: number;
+	id: number;
+	comments: number;
 };
 
 type Comment = {
-	name?: string;
-	text?: string;
-	timestamp?: string;
+	id: string;
+	content: string;
+	created_at: string;
+	updated_at?: string;
+	user?: {
+		id: string;
+		name: string;
+		email: string;
+	};
 };
 
 const containerVariants = {
@@ -67,7 +73,8 @@ export default function DevIdeasPage() {
 				`${import.meta.env.VITE_API_URL}/ideas/${id}/comments`
 			);
 			const data = await response.json();
-			setComments(data);
+
+			setComments(data.comments || []);
 		};
 		fetchComments();
 	}, [id]);
@@ -79,7 +86,7 @@ export default function DevIdeasPage() {
 			);
 			const data = await response.json();
 			setIdea(data);
-            setLoading(false);
+			setLoading(false);
 		};
 
 		fetchIdea();
@@ -107,7 +114,7 @@ export default function DevIdeasPage() {
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.6 }}
 					>
-						<h2 className="text-4xl font-extrabold tracking-tight text-white text-balance"> 
+						<h2 className="text-4xl font-extrabold tracking-tight text-white text-balance">
 							{`Project Idea ${idea?.title ?? ""}`}
 						</h2>
 						<p className="mt-4 text-lg text-purple-200">
@@ -151,7 +158,8 @@ export default function DevIdeasPage() {
 									animate={{ opacity: 1 }}
 									transition={{ delay: 0.2, duration: 0.5 }}
 								>
-									{idea?.description || "No description provided."}
+									{idea?.description ||
+										"No description provided."}
 								</motion.p>
 							</motion.section>
 
@@ -273,7 +281,7 @@ export default function DevIdeasPage() {
 								<div className="h-72 space-y-6 overflow-y-auto border-l-2 border-purple-400 bg-section-lighter/50 backdrop-blur-sm rounded-lg p-4 pl-6 pr-4">
 									{comments.map((comment, index) => (
 										<motion.div
-											key={index}
+											key={comment.id}
 											variants={commentVariants}
 											initial="hidden"
 											animate="visible"
@@ -284,14 +292,17 @@ export default function DevIdeasPage() {
 											<div className="flex-1">
 												<div className="flex items-baseline gap-2">
 													<p className="text-sm font-semibold text-purple-200">
-														{comment.name || "User"}
+														{comment.user?.name ||
+															"Anonymous"}
 													</p>
 													<p className="text-xs text-purple-300">
-														{comment.timestamp || "Just now"}
+														{new Date(
+															comment.created_at
+														).toLocaleString()}
 													</p>
 												</div>
 												<p className="mt-1 text-sm text-purple-100">
-													{comment.text || ""}
+													{comment.content}
 												</p>
 											</div>
 										</motion.div>

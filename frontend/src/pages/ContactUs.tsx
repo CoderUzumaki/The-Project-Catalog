@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/useToast"
-import { Mail, Phone, MapPin, Send, MessageSquare, Clock, Users } from "lucide-react"
+import { Mail, Phone, MapPin, Send, MessageSquare } from "lucide-react"
 
 interface FormData {
   name: string
@@ -181,7 +181,7 @@ export default function ContactPage() {
                           type="text"
                           value={formData.name}
                           onChange={(e) => handleInputChange("name", e.target.value)}
-                          className={getInputClassName("name")}
+                          className={`${getInputClassName("name")} text-gray-900`}
                           placeholder="Enter your full name"
                         />
                         {errors.name && (
@@ -203,7 +203,7 @@ export default function ContactPage() {
                           type="email"
                           value={formData.email}
                           onChange={(e) => handleInputChange("email", e.target.value)}
-                          className={getInputClassName("email")}
+                          className={`${getInputClassName("email")} text-gray-900`}
                           placeholder="Enter your email"
                         />
                         {errors.email && (
@@ -227,7 +227,7 @@ export default function ContactPage() {
                         type="text"
                         value={formData.subject}
                         onChange={(e) => handleInputChange("subject", e.target.value)}
-                        className={getInputClassName("subject")}
+                        className={`${getInputClassName("subject")} text-gray-900`}
                         placeholder="What's this about?"
                       />
                       {errors.subject && (
@@ -249,7 +249,7 @@ export default function ContactPage() {
                         id="message"
                         value={formData.message}
                         onChange={(e) => handleInputChange("message", e.target.value)}
-                        className={`${getInputClassName("message")} min-h-[120px] resize-none`}
+                        className={`${getInputClassName("message")} min-h-[120px] resize-none text-gray-900`}
                         placeholder="Tell us more about your inquiry..."
                       />
                       {errors.message && (
@@ -295,8 +295,8 @@ export default function ContactPage() {
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Let's Connect</h2>
-                <p className="text-gray-600 text-lg leading-relaxed">
+                <h2 className="text-3xl font-bold text-gray-300 mb-6">Let's Connect</h2>
+                <p className="text-gray-400 text-lg leading-relaxed">
                   Whether you're looking to collaborate, have questions about our platform, or just want to say hello,
                   we're here to help. Choose the best way to reach us.
                 </p>
@@ -313,7 +313,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Email Us</h3>
-                    <p className="text-gray-600">hello@innovatehub.com</p>
+                    <p className="text-gray-600">hello@devhub.com</p>
                     <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
                   </div>
                 </motion.div>
@@ -328,8 +328,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Call Us</h3>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
-                    <p className="text-sm text-gray-500">Mon-Fri, 9AM-6PM EST</p>
+                    <p className="text-gray-600">+91 12345 67890</p>
+                    <p className="text-sm text-gray-500">Mon-Fri, 9AM-6PM IST</p>
                   </div>
                 </motion.div>
 
@@ -344,9 +344,9 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-gray-900">Visit Us</h3>
                     <p className="text-gray-600">
-                      123 Innovation Street
+                      F42, NIT Raipur
                       <br />
-                      Tech City, TC 12345
+                      GE Road, Raipur
                     </p>
                     <p className="text-sm text-gray-500">Open office hours by appointment</p>
                   </div>
@@ -354,7 +354,7 @@ export default function ContactPage() {
               </div>
 
               {/* Quick Stats */}
-              <motion.div
+              {/* <motion.div
                 className="grid grid-cols-2 gap-4 pt-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -370,7 +370,7 @@ export default function ContactPage() {
                   <div className="text-2xl font-bold text-gray-900">10k+</div>
                   <div className="text-sm text-gray-600">Happy Users</div>
                 </div>
-              </motion.div>
+              </motion.div> */}
             </motion.div>
           </div>
         </div>

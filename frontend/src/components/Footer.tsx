@@ -15,7 +15,7 @@ const Footer: FC = () => {
 							<span className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
 								<Code className="w-5 h-5 text-primary-foreground" />
 							</span>
-							<span className="text-2xl font-bold text-foreground">
+							<span className="text-2xl font-bold text-primary">
 								DevHub
 							</span>
 						</div>
@@ -27,7 +27,7 @@ const Footer: FC = () => {
 						</p>
 						<div className="flex space-x-4">
 							<a
-								href="https://github.com/coderuzumaki/prepedge-ai"
+								href="https://github.com/CoderUzumaki/The-Project-Catalog"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="text-gray-900 hover:text-cyan-500 transition-colors duration-200"
