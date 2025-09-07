@@ -35,12 +35,13 @@ const cardHover = {
 interface Project {
 	id: string;
 	title: string;
-	author: string;
-	tech: string[];
+	username: string;
+	tags: string[];
 	likeCount: number;
-	image: string;
-	githubUrl?: string;
+	imageUrl: string;
+	repoUrl?: string;
 	liveUrl?: string;
+	ideaId?: string;
 }
 
 export default function HomePage() {
