@@ -1,5 +1,8 @@
 import type React from "react"
-import { ArrowRight,  Heart, MessageCircle, UserPlus, Pencil } from "lucide-react"
+import { useState } from "react"
+import { BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
+import { ArrowRight, Heart, MessageCircle, Pencil } from "lucide-react"
+import { DevIdeasPage } from "./DevIdeasPage";
 
 // Mock data for showcases
 const showcases = [
@@ -27,14 +30,53 @@ const showcases = [
   }
 ];
 
+// Placeholder component for the project detail page
+
+
 
 const ProfilePage: React.FC = () => {
+  // State to manage editing mode
+  const [isEditing, setIsEditing] = useState(false);
+
+  // State to hold the profile data
+  const [profileData, setProfileData] = useState({
+    name: "Sophia Bennett",
+    username: "@sophia_b",
+    bio: "Software Engineer | Open Source Enthusiast",
+  });
+
+  // A temporary state to hold edits without affecting the main profile data until saved
+  const [editableProfileData, setEditableProfileData] = useState(profileData);
+
+  // Handler for input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEditableProfileData(prevData => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  // Handler to enter edit mode
+  const handleEdit = () => {
+    setEditableProfileData(profileData); // Reset temporary data to current profile data
+    setIsEditing(true);
+  };
+
+  // Handler to save changes
+  const handleSave = () => {
+    setProfileData(editableProfileData); // Commit changes
+    setIsEditing(false);
+  };
+
+  // Handler to cancel editing
+  const handleCancel = () => {
+    setIsEditing(false); // Discard changes
+  };
+
+
   return (
     <div className="min-h-screen bg-slate-100 font-sans">
-      {/* Navigation Header */}
-  
-
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-10">
         {/* Profile Header Card */}
         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-2xl p-8 mb-12 shadow-xl animate-in fade-in slide-in-from-bottom duration-700">
@@ -44,21 +86,59 @@ const ProfilePage: React.FC = () => {
             </div>
             <div className="flex-1">
               <div className="flex justify-between items-start">
-                  <div>
-                    <h1 className="text-4xl font-bold mb-1 text-left">Sophia Bennett</h1>
-                    <p className="text-blue-200 text-lg mb-2 text-left">@sophia_b</p>
-                    <p className="text-blue-100 text-left">Software Engineer | Open Source Enthusiast</p>
+                {isEditing ? (
+                  // EDITING VIEW
+                  <div className="flex-1 space-y-2">
+                    <input
+                      type="text"
+                      name="name"
+                      value={editableProfileData.name}
+                      onChange={handleInputChange}
+                      className="w-full text-4xl font-bold bg-white/10 rounded-lg p-2 border border-white/20 focus:ring-2 focus:ring-white/50 outline-none transition"
+                    />
+                    <input
+                      type="text"
+                      name="username"
+                      value={editableProfileData.username}
+                      onChange={handleInputChange}
+                      className="w-full text-lg text-blue-200 bg-white/10 rounded-lg p-2 border border-white/20 focus:ring-2 focus:ring-white/50 outline-none transition"
+                    />
+                    <textarea
+                      name="bio"
+                      value={editableProfileData.bio}
+                      onChange={handleInputChange}
+                      className="w-full text-blue-100 bg-white/10 rounded-lg p-2 border border-white/20 focus:ring-2 focus:ring-white/50 outline-none transition resize-none"
+                      rows={2}
+                    />
                   </div>
-                  <div className="flex items-center gap-3 mt-1">
-                      <button className="bg-white/20 backdrop-blur-sm text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-white/30 transition-colors duration-200">
-                        <UserPlus className="w-4 h-4"/>
-                        Follow
+                ) : (
+                  // DISPLAY VIEW
+                  <div>
+                    <h1 className="text-4xl font-bold mb-1 text-left">{profileData.name}</h1>
+                    <p className="text-blue-200 text-lg mb-2 text-left">{profileData.username}</p>
+                    <p className="text-blue-100 text-left">{profileData.bio}</p>
+                  </div>
+                )}
+                
+                <div className="flex items-center gap-3 mt-1 flex-shrink-0">
+                  {isEditing ? (
+                    <>
+                      <button onClick={handleSave} className="bg-white text-blue-600 font-semibold px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors duration-200 m-5">
+                        Save Changes
                       </button>
-                      <button className="bg-white text-blue-600 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-slate-100 transition-colors duration-200">
+                      <button onClick={handleCancel} className="bg-white/20 backdrop-blur-sm text-white font-semibold px-4 py-2 rounded-lg hover:bg-white/30 transition-colors duration-200">
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={handleEdit} className="bg-white text-blue-600 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-slate-100 transition-colors duration-200">
                         <Pencil className="w-4 h-4"/>
                         Edit Profile
                       </button>
-                  </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -104,7 +184,7 @@ const ProfilePage: React.FC = () => {
 
               <div className="space-y-8">
                 {showcases.map((item, index) => (
-                  <div key={index} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 transition-all  hover:shadow-lg hover:-translate-y-1 animate-in fade-in slide-in-from-bottom duration-700" style={{animationDelay: `${500 + index * 100}ms`}}>
+                  <div key={index} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-in fade-in slide-in-from-bottom" style={{animationDelay: `${500 + index * 100}ms`}}>
                     <div className="flex items-start gap-6">
                       <div className="flex-shrink-0">
                         <img src={item.image} alt={item.title} className="w-48 h-32 object-cover rounded-xl"/>
@@ -118,14 +198,14 @@ const ProfilePage: React.FC = () => {
                         </div>
                         <p className="text-slate-600 mb-4 text-sm leading-relaxed">{item.description}</p>
                         <div className="flex items-center justify-between">
-                            <button className="text-blue-600 font-semibold group transition-all duration-200 flex items-center hover:text-blue-700 text-sm">
+                            <Link to={`/project/${item.title.toLowerCase().replace(/\s+/g, '-')}`} className="text-blue-600 font-semibold group transition-all duration-200 flex items-center hover:text-blue-700 text-sm">
                               View Project
                               <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-200" />
-                            </button>
+                            </Link>
                             <div className="flex items-center gap-4 text-slate-500">
                                 <span className="flex items-center gap-1.5 text-sm"><Heart className="w-4 h-4"/> {item.stats.likes}</span>
                                 <span className="flex items-center gap-1.5 text-sm"><MessageCircle className="w-4 h-4"/> {item.stats.comments}</span>
-                               
+                                
                             </div>
                         </div>
                       </div>
@@ -140,5 +220,17 @@ const ProfilePage: React.FC = () => {
   )
 }
 
-export default ProfilePage
+// Main App component to handle routing
+const App: React.FC = () => {
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<ProfilePage />} />
+                <Route path="/project/:title" element={<DevIdeasPage />} />
+            </Routes>
+        </Router>
+    )
+}
+
+export default App;
 

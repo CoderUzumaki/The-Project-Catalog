@@ -52,8 +52,8 @@ export function DevIdeasPage() {
             <div className="space-y-12 lg:col-span-2">
               <section>
                 <div className="mb-6 flex items-center gap-4">
-                  <div className="rounded-xl bg-primary/10 p-3 text-primary"><Lightbulb className="h-7 w-7" /></div>
-                  <h3 className="text-2xl font-bold text-slate-900">The Problem</h3>
+                  <div className="rounded-xl bg-blue-400 p-3 text-white-0 "><Lightbulb className="h-7 w-7" /></div>
+                  <h3 className="text-2xl font-bold text-slate-900 ">The Problem</h3>
                 </div>
                 <p className="text-base leading-relaxed text-slate-600">
                   Many homeowners struggle with managing various smart devices from different manufacturers, leading to a fragmented and inefficient smart home experience. There's a need for a unified system that integrates all devices, providing seamless control and automation.
