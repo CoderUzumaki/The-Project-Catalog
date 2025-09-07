@@ -54,27 +54,70 @@ class Project(db.Model):
     image_url = db.Column(db.String(300), nullable=True)
     repo_url = db.Column(db.String(300), nullable=False)
     live_url = db.Column(db.String(300), nullable=True)
-    tags = db.Column(db.ARRAY(db.String), nullable=True)  # Array of strings
+    tags = db.Column(db.ARRAY(db.String), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     like_count = db.Column(db.Integer, default=0)
-    dislike_count = db.Column(db.Integer, default=0)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
 
+    # Foreign Keys
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
+    idea_id = db.Column(UUID(as_uuid=True), db.ForeignKey('ideas.id'), nullable=False)  # REMOVED unique=True
+    
+    # Relationships
     user = db.relationship('User', backref=db.backref('projects', lazy=True))
+    idea = db.relationship('Idea', backref=db.backref('projects', lazy=True))  # Changed to many projects
 
     def __repr__(self):
         return f'<Project {self.title}>'
     
     @classmethod
-    def create(cls, title, description, repo_url, user_id, live_url=None, tags=None):
-        """Create a new project."""
+    def create(cls, title, description, repo_url, user_id, idea_id, live_url=None, tags=None):
+        """Create a new project from an idea."""
         project = cls(
             title=title,
             description=description,
             repo_url=repo_url,
             live_url=live_url,
             tags=tags,
-            user_id=user_id
+            user_id=user_id,
+            idea_id=idea_id
         )
         return project
+
+class Idea(db.Model):
+    __tablename__ = 'ideas'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    like_count = db.Column(db.Integer, default=0)
+    status = db.Column(db.String(50), default='proposed')  # proposed, in_progress, completed
+    difficulty = db.Column(db.String(50), nullable=True)  # e.g., easy, medium, hard
+    # Foreign Key
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
+    
+    # Relationships
+    user = db.relationship('User', backref=db.backref('ideas', lazy=True))
+    # project relationship is defined in Project model as backref
+
+    def __repr__(self):
+        return f'<Idea {self.title}>'
+    
+    @classmethod
+    def create(cls, title, description, user_id):
+        """Create a new idea."""
+        idea = cls(
+            title=title,
+            description=description,
+            user_id=user_id
+        )
+        return idea
+    
+    def has_projects(self):  # Renamed from has_project
+        """Check if this idea has been implemented as projects."""
+        return len(self.projects) > 0
+    
+    def project_count(self):
+        """Get the number of projects implementing this idea."""
+        return len(self.projects)

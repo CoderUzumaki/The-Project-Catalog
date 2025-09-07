@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 from app.models import User, db
 from functools import wraps
-from app.models import Project
+from app.models import Project,Idea,User
 # Load environment variables
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
@@ -379,3 +379,39 @@ def submit_project():
         current_app.logger.error(f"Project submission failed: {e}")
         return jsonify({"status": 500, "detail": "Project submission failed", "error": str(e)}), 500
 
+@app.route("/user/<uuid:user_id>", methods=["GET"])
+@login_required
+def profile(user_id):
+    """Get all projects submitted by a user."""
+    user=User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"status": 404, "detail": "User not found"}), 404
+    projects = Project.query.filter_by(user_id=user_id).all()
+    return jsonify({
+        "status": 200,
+        "user": {
+            "id": str(user.id),
+            "email": user.email,
+            "name": user.name,
+            "github_username": user.github_username,
+            "avatar_url": user.avatar_url
+        },
+        "projects": [project.to_dict() for project in projects]
+    }), 200
+
+@app.route('/home', methods=['GET'])
+def featured_projects():
+    """Get featured projects."""
+    projects = Project.query.order_by(Project.like_count.desc()).limit(6).all()
+    return jsonify({
+        "status": 200,
+        "projects": [project.to_dict() for project in projects]
+    }), 200
+
+@app.route('/ideas', methods=['GET'])
+def list_ideas():
+    ideas= Idea.query.order_by(Idea.created_at.desc()).all()
+    return jsonify({
+        "status": 200,
+        "ideas": [idea.to_dict() for idea in ideas]
+    }), 200
