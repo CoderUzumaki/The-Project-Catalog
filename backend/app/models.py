@@ -143,8 +143,6 @@ class Idea(db.Model):
     # Foreign Key
     solution=db.Column(db.Text, nullable=True)  # URL to a solution or related resource
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
-    author=User.query.filter_by(id=user_id).first().name if user_id else None
-    
     
     # Relationships
     user = db.relationship('User', backref=db.backref('ideas', lazy=True))
