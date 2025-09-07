@@ -1,12 +1,14 @@
+import React from 'react'
 import './App.css'
+import LandingPage from './assets/components/LandingPage'
+import { DevIdeasPage } from './assets/components/DevIdeasPage'
+import ProfilePage from './assets/components/ProfilePage'
 
 function App() {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <h1 className="text-4xl font-bold text-blue-600">Welcome to DevHub!</h1>
-      </div>
+    <ProfilePage/>
     </>
   )
 }
