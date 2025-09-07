@@ -7,6 +7,7 @@ import IdeaDetails from '@/pages/IdeaDetails';
 import ContactUs from '@/pages/ContactUs';
 import LoginPage from '@/pages/Login';
 import AboutPage from '@/pages/AboutUs';
+import SignupPage from '@/pages/SignUp';
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
       { path: "contact", element: <ContactUs /> },
       { path: "login", element: <LoginPage /> },
       { path: "about", element: <AboutPage /> },
+      { path: "signup", element: <SignupPage /> }
     ],
   },
 ]);
