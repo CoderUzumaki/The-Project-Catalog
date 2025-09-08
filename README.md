@@ -2,7 +2,7 @@
 
 DevHub is a community-driven platform designed to inspire, showcase, and connect creators through project ideas. Whether you’re a beginner looking for your first coding challenge or an experienced developer seeking advanced concepts, DevHub helps you discover, build, and share projects with others.
 
-LIVE:https://devhub-murex.vercel.app/
+LIVE: https://dev-hub.tech/
 ---
 
 ## 🚀 Features
@@ -36,7 +36,7 @@ LIVE:https://devhub-murex.vercel.app/
 
 ## 🏗️ Tech Stack
 
-- **Frontend:** React.js  
+- **Frontend:** React.js + Tailwind CSS
 - **Backend:** Flask (Python)  
 - **Database:** Supabase (PostgreSQL)  
-- **Deployment:** Render  
+- **Deployment:** Vercel (Frontend) & Render (Backend)
