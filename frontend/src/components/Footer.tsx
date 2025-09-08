@@ -102,7 +102,7 @@ const Footer: FC = () => {
 							<li>
 								<Link
 									to="/contact"
-									className="transition-all text-muted-foreground hover:text-cyan-500 hover:bg-white/40"
+									className="transition-all text-muted-foreground hover:text-cyan-500"
 								>
 									Contact Us
 								</Link>
@@ -110,7 +110,7 @@ const Footer: FC = () => {
 							<li>
 								<Link
 									to="#"
-									className="transition-all text-muted-foreground hover:text-cyan-500 hover:bg-white/40"
+									className="transition-all text-muted-foreground hover:text-cyan-500"
 								>
 									Help Center
 								</Link>
@@ -122,12 +122,12 @@ const Footer: FC = () => {
 
          {/* Bottom section with copyright and legal links */}
           <div className="flex flex-col sm:flex-row justify-between items-center mt-16 pt-8 border-t border-border">
-            <p className="text-muted-foreground text-sm">© 2025 DevHub. All rights reserved.</p>
+            <p className="text-gray-600 text-sm">© 2025 DevHub. All rights reserved.</p>
             <div className="flex space-x-6 mt-4 sm:mt-0">
-              <a href="#" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+              <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
                 Privacy Policy
               </a>
-              <a href="#" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+              <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
                 Terms of Service
               </a>
             </div>

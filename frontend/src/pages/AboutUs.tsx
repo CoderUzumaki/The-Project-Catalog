@@ -19,17 +19,17 @@ const teamMembers: TeamMember[] = [
   {
     name: "Abhinav Mishra",
     role: "Full Stack Developer",
-    imgSrc: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/hispanic-male-developer-WVcPj6CLDSCOXizYQoxTspGjoy8LCE.png",
+    imgSrc: "/abhinav.jpg",
   },
   {
     name: "Pratyu Deheria",
     role: "Frontend Developer",
-    imgSrc: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/hispanic-male-developer-WVcPj6CLDSCOXizYQoxTspGjoy8LCE.png",
+    imgSrc: "/pratyu.jpg",
   },
   {
     name: "Nishant Borkar",
     role: "Backend Developer",
-    imgSrc: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/hispanic-male-developer-WVcPj6CLDSCOXizYQoxTspGjoy8LCE.png",
+    imgSrc: "/nishant.jpg",
   },
 ]
 
