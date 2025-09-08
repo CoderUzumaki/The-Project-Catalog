@@ -4,11 +4,10 @@ from pathlib import Path
 from typing import Any, Dict
 import uuid
 import os
-from datetime import datetime
 from dotenv import load_dotenv
 from app.models import User, db
 from functools import wraps
-from app.models import Project, Idea, User, UserIdeaLike, Comment
+from app.models import Project, Idea, User, UserIdeaLike
 
 # Load environment variables
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
@@ -18,7 +17,6 @@ def _env(name, default=""):
     return v.strip() if isinstance(v, str) else v
 
 SUPABASE_URL = _env("SUPABASE_URL")
-FRONTEND_URL = _env("FRONTEND_URL", "https://devhub-murex.vercel.app/")
 
 def _extract(resp: Any, key: str):
     if resp is None:
@@ -282,15 +280,15 @@ def google_oauth():
         if not SUPABASE_URL:
             return redirect("/login?error=Supabase URL not configured")
             
-        # Use environment variable for frontend URL
-        oauth_url = f"{SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to={FRONTEND_URL}"
+        # Supabase handles the OAuth flow, we just need to redirect to their OAuth URL
+        oauth_url = f"{SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=http://127.0.0.1:5000/auth/callback"
         return redirect(oauth_url)
     except Exception as e:
         return redirect(f"/login?error=OAuth initialization failed: {str(e)}")
 
 @app.route("/auth/callback", methods=["GET"])  
 def oauth_callback():
-    """Handle OAuth callback and redirect to frontend"""
+    """Handle OAuth callback from Supabase"""
     try:
         # Get the access token and refresh token from URL fragments or query params
         access_token = request.args.get('access_token')
@@ -299,59 +297,29 @@ def oauth_callback():
         error_description = request.args.get('error_description')
         
         if error:
-            # Redirect to frontend with error
-            return redirect(f"{FRONTEND_URL}/?error={error_description or error}")
+            return redirect(f"/login?error=OAuth failed: {error_description or error}")
         
         if access_token:
-            # Process the OAuth tokens
-            try:
-                user_response = supabase.auth.get_user(access_token)
-                user = _extract(user_response, "user")
+            # Use the access token to get user info
+            user_response = supabase.auth.get_user(access_token)
+            user = _extract(user_response, "user")
+            
+            if user:
+                # Create session
+                session.clear()
+                session["user_id"] = user.get("id")
+                session["email"] = user.get("email")
+                session["access_token"] = access_token
                 
-                if user:
-                    # Normalize user data
-                    if hasattr(user, "dict"):
-                        try:
-                            user = user.dict()
-                        except Exception:
-                            user = dict(user.__dict__) if hasattr(user, "__dict__") else user
-                    
-                    # Create session
-                    session.clear()
-                    session["user_id"] = user.get("id")
-                    session["email"] = user.get("email")
-                    session["access_token"] = access_token
-                    if refresh_token:
-                        session["refresh_token"] = refresh_token
-                    
-                    # Try to create user in database
-                    try:
-                        existing_user = User.query.filter_by(auth_id=user.get("id")).first()
-                        if not existing_user:
-                            new_user = User(
-                                auth_id=user.get("id"),
-                                email=user.get("email"),
-                                name=user.get("user_metadata", {}).get("full_name") or user.get("user_metadata", {}).get("name")
-                            )
-                            db.session.add(new_user)
-                            db.session.commit()
-                    except Exception as db_error:
-                        current_app.logger.error(f"Database error during OAuth: {db_error}")
-                        # Continue even if database fails
-                    
-                    # Redirect to frontend with success
-                    return redirect(f"{FRONTEND_URL}/?success=Login successful")
-                else:
-                    return redirect(f"{FRONTEND_URL}/?error=Failed to get user information")
-            except Exception as process_error:
-                current_app.logger.error(f"OAuth processing error: {process_error}")
-                return redirect(f"{FRONTEND_URL}/?error=Authentication processing failed")
+                # Redirect to ideas page after successful OAuth
+                return redirect("/ideas?success=Google login successful!")
+            else:
+                return redirect("/login?error=Failed to get user information")
         else:
-            return redirect(f"{FRONTEND_URL}/?error=No access token received")
+            return redirect("/login?error=No access token received")
             
     except Exception as e:
-        current_app.logger.error(f"OAuth callback failed: {e}")
-        return redirect(f"http://localhost:3000/?error=Authentication failed")
+        return redirect(f"/login?error=OAuth callback failed: {str(e)}")
 
 @app.route("/auth/google/callback", methods=["GET"])
 def google_callback():
@@ -652,111 +620,6 @@ def get_idea(idea_id):
         return jsonify({"status": 404, "detail": "Idea not found"}), 404
     return jsonify({"status": 200, "idea": idea.to_dict()}), 200
 
-@app.route('/ideas/<uuid:idea_id>/comments', methods=['GET'])
-def get_idea_comments(idea_id):
-    """Get all comments for a specific idea."""
-    try:
-        # First check if the idea exists
-        idea = Idea.query.filter_by(id=idea_id).first()
-        if not idea:
-            return jsonify({"status": 404, "detail": "Idea not found"}), 404
-        
-        # Get query parameters for pagination
-        page = request.args.get('page', 1, type=int)
-        limit = request.args.get('limit', 20, type=int)
-        
-        # Validate parameters
-        if page < 1:
-            page = 1
-        if limit < 1 or limit > 100:
-            limit = 20
-        
-        # Query comments for this idea, ordered by creation date (newest first)
-        comments_query = Comment.query.filter_by(idea_id=idea_id).order_by(Comment.created_at.desc())
-        
-        # Apply pagination
-        paginated_comments = comments_query.paginate(
-            page=page,
-            per_page=limit,
-            error_out=False
-        )
-        
-        # Build response
-        response_data = {
-            "status": 200,
-            "idea_id": str(idea_id),
-            "idea_title": idea.title,
-            "comments": [comment.to_dict() for comment in paginated_comments.items],
-            "pagination": {
-                "page": page,
-                "limit": limit,
-                "total_pages": paginated_comments.pages,
-                "total_items": paginated_comments.total,
-                "has_next": paginated_comments.has_next,
-                "has_prev": paginated_comments.has_prev,
-                "next_page": paginated_comments.next_num if paginated_comments.has_next else None,
-                "prev_page": paginated_comments.prev_num if paginated_comments.has_prev else None
-            }
-        }
-        
-        return jsonify(response_data), 200
-        
-    except Exception as e:
-        current_app.logger.error(f"Failed to fetch comments for idea {idea_id}: {e}")
-        return jsonify({
-            "status": 500, 
-            "detail": "Failed to fetch comments", 
-            "error": str(e)
-        }), 500
-
-@app.route('/ideas/<uuid:idea_id>/comments', methods=['POST'])
-@login_required
-def create_comment(idea_id):
-    """Create a new comment on an idea."""
-    try:
-        # Check if the idea exists
-        idea = Idea.query.filter_by(id=idea_id).first()
-        if not idea:
-            return jsonify({"status": 404, "detail": "Idea not found"}), 404
-        
-        # Get request data
-        data = request.get_json() or {}
-        content = (data.get("content") or "").strip()
-        
-        if not content:
-            return jsonify({"status": 400, "detail": "Comment content is required"}), 400
-        
-        # Get current user
-        user_id = session["user_id"]
-        
-        # Create new comment
-        new_comment = Comment.create(
-            user_id=user_id,
-            idea_id=idea_id,
-            content=content
-        )
-        
-        db.session.add(new_comment)
-        db.session.commit()
-        
-        return jsonify({
-            "status": 201,
-            "message": "Comment created successfully",
-            "comment": new_comment.to_dict()
-        }), 201
-        
-    except Exception as e:
-        try:
-            db.session.rollback()
-        except:
-            pass
-        current_app.logger.error(f"Failed to create comment: {e}")
-        return jsonify({
-            "status": 500, 
-            "detail": "Failed to create comment", 
-            "error": str(e)
-        }), 500
-
 @app.route('/ideas/<uuid:idea_id>/like', methods=['POST'])
 @login_required
 def like_idea(idea_id):
@@ -860,53 +723,3 @@ def unlike_idea(idea_id):
             pass
         current_app.logger.error(f"Failed to unlike idea: {e}")
         return jsonify({"status": 500, "detail": "Failed to unlike idea", "error": str(e)}), 500
-
-@app.route('/health', methods=['GET'])
-def health_check():
-    """Health check endpoint for monitoring and load balancers."""
-    try:
-        # Test database connection
-        db.session.execute('SELECT 1')
-        
-        return jsonify({
-            "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
-            "version": "1.0.0",
-            "database": "connected",
-            "services": {
-                "database": "ok",
-                "authentication": "ok" if supabase else "disabled"
-            }
-        }), 200
-        
-    except Exception as e:
-        return jsonify({
-            "status": "unhealthy",
-            "timestamp": datetime.utcnow().isoformat(),
-            "error": str(e)
-        }), 503
-
-@app.route('/', methods=['GET'])
-def root():
-    """Root endpoint - API information."""
-    return jsonify({
-        "name": "The Project Catalog API",
-        "version": "1.0.0",
-        "description": "API for managing project ideas and implementations",
-        "endpoints": {
-            "health": "/health",
-            "ideas": "/ideas",
-            "auth": "/auth/status",
-            "documentation": "/docs"
-        },
-        "status": "running"
-    }), 200
-
-@app.route('/project/<uuid:project_id>', methods=['GET'])
-def get_project(project_id):
-    """Get project details by ID."""
-    project = Project.query.filter_by(id=project_id).first()
-    if not project:
-        return jsonify({"status": 404, "detail": "Project not found"}), 404
-    return jsonify({"status": 200, "project": project.to_dict()}), 200
-
